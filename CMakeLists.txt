@@ -23,6 +23,8 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(imgui)
 
+
+
 add_library(imgui
     ${imgui_SOURCE_DIR}/imgui.cpp
     ${imgui_SOURCE_DIR}/imgui_draw.cpp
@@ -38,9 +40,28 @@ target_include_directories(imgui PUBLIC
     ${imgui_SOURCE_DIR}/backends
 )
 
+
 target_link_libraries(imgui PUBLIC
     glfw
 )
+FetchContent_Declare(
+    implot3d
+    GIT_REPOSITORY https://github.com/brenocq/implot3d
+    GIT_TAG main
+)
+
+FetchContent_MakeAvailable(implot3d)
+
+add_library(implot3d
+    ${implot3d_SOURCE_DIR}/implot3d.cpp
+    ${implot3d_SOURCE_DIR}/implot3d_items.cpp
+)
+
+target_include_directories(implot3d PUBLIC
+    ${implot3d_SOURCE_DIR}
+)
+
+target_link_libraries(implot3d PUBLIC imgui)
 
 FetchContent_Declare(
     implot
@@ -70,8 +91,13 @@ target_include_directories(glad PUBLIC
 )
 
 
+
 add_executable(NumericalMethods
     src/main.cpp
+)
+
+target_include_directories(NumericalMethods PRIVATE
+    ${CMAKE_SOURCE_DIR}/external/eigen
 )
 
 target_link_libraries(NumericalMethods PRIVATE
@@ -80,4 +106,10 @@ target_link_libraries(NumericalMethods PRIVATE
     glfw
     imgui
     implot
+)
+
+add_custom_command(TARGET NumericalMethods POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_SOURCE_DIR}/Shaders
+            $<TARGET_FILE_DIR:NumericalMethods>/Shaders
 )
